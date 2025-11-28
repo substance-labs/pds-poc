@@ -1,9 +1,11 @@
-const { connect, keyStores, utils, KeyPair } = require("near-api-js")
+require('dotenv').config()
+const { keyStores, utils } = require("near-api-js")
 const { KeyPairSigner } = require("@near-js/signers")
 const { Account } = require("@near-js/accounts")
-const { JsonRpcProvider, ConnectionInfo } = require("@near-js/providers")
+const { JsonRpcProvider } = require("@near-js/providers")
 const path = require("path")
 const os = require("os")
+
 
 // TODO: export all the configuration to env
 module.exports.init = async () => {
@@ -12,21 +14,32 @@ module.exports.init = async () => {
     const credentialsPath = path.join(homedir, CREDENTIALS_DIR)
     const keyStore = new keyStores.UnencryptedFileSystemKeyStore(credentialsPath)
 
-    const url = "https://rpc.mainnet.near.org"
-    const accountId = "substance-test-1.near"
-    const keyPair = await keyStore.getKey("mainnet", accountId)
+
+
+    const url = process.env["NEAR_RPC_URL"]
+    const accountId = process.env["NEAR_ACCOUNT_ID"]
+    const network = process.env["NEAR_NETWORK"]
+    const contractId = process.env["OUTLAYER_CONTRACT"]
+
+    const keyPair = await keyStore.getKey(network, accountId)
+    console.log(keyPair)
     const connectionInfo = { url }
     const signer = new KeyPairSigner(keyPair)
     const provider = new JsonRpcProvider(connectionInfo, { retries: 3 })
     const account = new Account(accountId, provider, signer)
 
-    const contractId = "outlayer.near"
     const methodName = "request_execution"
     const args = {
         code_source: {
-            repo: "https://github.com/gitmp01/rust-pds-poc",
-            commit: "master",
-            build_target: "wasm32-wasip1",
+            GitHub: {
+                repo: "https://github.com/gitmp01/rust-pds-poc",
+                commit: "f7a3b579ddec5ce4073199f943e430f24138cf51",
+                build_target: "wasm32-wasip1",
+            }
+        },
+        secrets_ref: {
+            profile: "default",
+            account_id: accountId
         },
         resource_limits: {
             max_instructions: 10000000,

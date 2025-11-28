@@ -18,8 +18,9 @@ program.command('init')
 
 program.command('generate')
     .description('Generate deposit address')
-    .action(() => {
-        tee.outlayer.generate()
+    .argument('<publicKey>', 'Public key for the deposit address')
+    .action((publicKey) => {
+        tee.outlayer.generate(publicKey)
     })
 
 program.command('forward')
