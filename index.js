@@ -12,15 +12,18 @@ program
 
 program.command('init')
     .description('Initialize tee')
-    .action(() => {
-        tee.outlayer.init()
+    .option('--protocol, -p', 'protocol', 'evm')
+    .option('--chain-id, -c', 'chain id', 8453)
+    .action((options) => {
+        const { protocol, chainId } = options
+        tee.init({ protocol, chainId })
     })
 
 program.command('generate')
     .description('Generate deposit address')
     .argument('<publicKey>', 'Public key for the deposit address')
     .action((publicKey) => {
-        tee.outlayer.generate(publicKey)
+        tee.generate(publicKey)
     })
 
 program.command('forward')

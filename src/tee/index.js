@@ -1,9 +1,7 @@
-const outlayer = require('./outlayer')
-const phala = require('./phala')
-const iexec = require('./iexec')
+const generate = require('./generate')
+const init = require('./init')
 
 module.exports = {
-    outlayer,
-    phala,
-    iexec
+    ...init,
+    ...generate,
 }

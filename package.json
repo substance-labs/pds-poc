@@ -19,6 +19,7 @@
     "near-api-js": "^6.5.1"
   },
   "devDependencies": {
+    "cbor": "^10.0.11",
     "dotenv": "^17.2.3",
     "tiny-secp256k1": "^2.2.4"
   }
