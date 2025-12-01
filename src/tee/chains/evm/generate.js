@@ -63,6 +63,7 @@ module.exports.generateEvmAddress = async ({
     actions,
 }) => {
     const chainId = parseInt(ethers.dataSlice(networkCode, 4, 8), 16).toString()
+    // FIXME: nonce gasprice and gas should not be commited to the params?
     const nonce = "0"
     // FIXME: retrieve from RPC node
     const gasPrice = "20000000"

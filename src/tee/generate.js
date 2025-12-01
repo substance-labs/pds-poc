@@ -2,7 +2,9 @@ const { ethers } = require('ethers')
 const { generateEvmAddress } = require('./chains/evm')
 
 const erc20Interface = new ethers.Interface([
-    "function transfer(address to, uint256 amount) returns (bool)"
+    "function transfer(address to, uint256 amount) returns (bool)",
+    "function decimals() view returns (uint8)"
+
 ])
 
 const PROTOCOL_CODES = {
@@ -28,16 +30,21 @@ const getFields = (initMaterial) => {
     }
 }
 
-module.exports.generate = (initMaterial) => {
-    const amount = ethers.parseEther("0.0001")
-    const contract = "0x63706e401c06ac8513145b7687a14804d17f814b" // AAVE on Base
-    const recipientAddress = "0xCEf67989ae740cC9c92fa7385F003F84EAAFd915".toLowerCase()
+module.exports.generate = async ({ initMaterial, amount, token, recipient }) => {
+    // FIXME: this works only w/ tokens having 18 decimals
+    const provider = new ethers.JsonRpcProvider(process.env.EVM_RPC_URL || 'http://localhost:8545')
+    const contract = new ethers.Contract(token, erc20Interface, provider)
+    const recipientAddress = recipient.toLowerCase()
+    const decimals = await contract.decimals()
+
+    const parsedAmount = ethers.parseUnits(amount, decimals)
+
     const calldata = erc20Interface.encodeFunctionData("transfer", [
         recipientAddress,
-        amount
+        parsedAmount
     ])
 
-    const actions = [{ to: contract, calldata, value: "0" }]
+    const actions = [{ to: token, calldata, value: "0" }]
 
     const {
         version,

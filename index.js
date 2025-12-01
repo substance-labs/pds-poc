@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+require('dotenv').config()
 const { Command } = require('commander')
 const tee = require('./src/tee')
 const forwarder = require('./src/forwarder')
@@ -21,15 +22,19 @@ program.command('init')
 
 program.command('generate')
     .description('Generate deposit address')
-    .argument('<publicKey>', 'Public key for the deposit address')
-    .action((publicKey) => {
-        tee.generate(publicKey)
+    .argument('<init>', 'Public key for the deposit address')
+    .option('--amount, -a <amount>', 'amount to transfer', '0.0001')
+    .option('--token, -t <token>', 'token to transfer', '0x63706e401c06ac8513145b7687a14804d17f814b')
+    .option('--recipient, -r <recipient>', 'recipient', '0xCEf67989ae740cC9c92fa7385F003F84EAAFd915')
+    .action((init, options) => {
+        tee.generate({ initMaterial: init, ...options })
     })
 
 program.command('forward')
     .description('Get the signed forward logic')
-    .action(() => {
-        forwarder.forward()
+    .argument('<payload>', 'Payload returned with the address generation')
+    .action((payload) => {
+        forwarder.forward(payload)
     })
 
 program.parse()

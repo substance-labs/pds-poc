@@ -1,11 +1,11 @@
-require('dotenv').config()
+const os = require("os")
+const path = require("path")
 const { keyStores, utils } = require("near-api-js")
 const { KeyPairSigner } = require("@near-js/signers")
 const { Account } = require("@near-js/accounts")
 const { JsonRpcProvider } = require("@near-js/providers")
 const { getEvmInitMessage } = require('./chains/evm')
-const path = require("path")
-const os = require("os")
+const { getCallArgs } = require('../get-call-args')
 
 
 // TODO: export all the configuration to env
@@ -37,26 +37,7 @@ module.exports.init = async ({ protocol, chainId }) => {
             throw new Error(`Unsupported protocol ${protocol}`)
     }
 
-    const args = {
-        code_source: {
-            GitHub: {
-                repo: "https://github.com/gitmp01/rust-pds-poc",
-                commit: "168301dab1ed40dfd4b0c37d348bd5681324a961",
-                build_target: "wasm32-wasip1",
-            }
-        },
-        secrets_ref: {
-            profile: "default",
-            account_id: accountId
-        },
-        resource_limits: {
-            max_instructions: 10000000,
-            max_memory_mb: 128,
-            max_execution_seconds: 60,
-        },
-        input_data: JSON.stringify({ message }),
-    }
-
+    const args = getCallArgs(message)
     const gas = "300000000000000" // 300 Tgas
     const deposit = utils.format.parseNearAmount("0.1")
 
