@@ -4,7 +4,7 @@
 npm i
 ```
 
-Copy env.example to .env and set the `NEAR_ACCOUNT_ID`, `NEAR_RPC_URL`, 
+Copy `example.env` to .env and set the `NEAR_ACCOUNT_ID`, `NEAR_RPC_URL`, 
 `EVM_RPC_URL`, `EVM_CHAIN_ID` environment variables.
 
 See the help with 
