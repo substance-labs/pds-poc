@@ -3,6 +3,7 @@ const { BIP32Factory } = require('bip32')
 const ecc = require('tiny-secp256k1')
 const crypto = require('crypto')
 const { ethers } = require('ethers')
+const { encodeMessage } = require('../../../message')
 
 function hexToBip32Path(hexString) {
     const cleanHex = hexString.startsWith('0x') ? hexString.slice(2) : hexString;
@@ -38,15 +39,7 @@ const getChildAddress = (child) => {
     return ethers.computeAddress(`0x${uncompressedPublicKey}`)
 }
 
-const getProcessDepositPayload = ({ version, networkCode, commitmentParams }) => {
-    const processDepositCommandCode = "0x00000001"
-    return ethers.concat([
-        version,
-        networkCode,
-        processDepositCommandCode,
-        cbor.encode(commitmentParams)
-    ])
-}
+
 
 // We expect all the values as hex-strings and without 0x
 // actions is an array of the form:
@@ -57,21 +50,16 @@ const getProcessDepositPayload = ({ version, networkCode, commitmentParams }) =>
 //   }
 module.exports.generateEvmAddress = async ({
     version,
-    networkCode,
+    protocol,
+    chainId,
     publicKey,
     chainCode,
-    actions,
+    action,
 }) => {
-    const chainId = parseInt(ethers.dataSlice(networkCode, 4, 8), 16).toString()
-    // FIXME: nonce gasprice and gas should not be commited to the params?
-    const nonce = "0"
-    // FIXME: retrieve from RPC node
-    const gasPrice = "20000000"
-    const gas = "50000"
+    const { to, value, calldata } = action
 
-    const { to, value, calldata } = actions[0]
-
-    const commitmentParams = [chainId, nonce, gasPrice, gas, to, value, calldata]
+    // const commitmentParams = [chainId, nonce, gasPrice, gas, to, value, calldata]
+    const commitmentParams = [chainId, to, value, calldata]
     const commitmentHashHex = getCommitmentHash(commitmentParams)
 
     const bip32 = BIP32Factory(ecc)
@@ -82,10 +70,12 @@ module.exports.generateEvmAddress = async ({
     const child = parent.derivePath('m/' + deterministicPath)
 
     const address = getChildAddress(child)
-    const payload = getProcessDepositPayload({ version, networkCode, commitmentParams })
+    const command = "0x00000001" // Process deposit
+    const payload = cbor.encode(commitmentParams);
+    const message = encodeMessage({ version, protocol, command, payload })
 
     console.log("Output:", JSON.stringify({
         address,
-        payload
+        message
     }))
 }

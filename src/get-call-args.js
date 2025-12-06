@@ -18,7 +18,7 @@ module.exports.getCallArgs = (message, overwrite = {}) => {
         code_source: { ...codeObj },
         secrets_ref: {
             profile: "default",
-            account_id: process.env['NEAR_ACCOUNT_ID']
+            account_id: process.env['OUTLAYER_SECRET_ACCOUNT_ID']
         },
         resource_limits: {
             max_instructions: 100000000,
