@@ -38,7 +38,6 @@ module.exports.init = async ({ protocol, chainId }) => {
     }
 
     const args = getCallArgs(message)
-
     const gas = "300000000000000" // 300 Tgas
     const deposit = utils.format.parseNearAmount("0.1")
 

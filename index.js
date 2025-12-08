@@ -33,9 +33,13 @@ program.command('generate')
 
 program.command('forward')
     .description('Get the signed forward logic')
+    .option('--gas-limit -g, <gas>', 'gas limit', '50000')
+    .option('--gas-price, -p <gasPrice>', 'gas price', "200000")
+    .option('--nonce, -n <nonce>', 'nonce', "0")
     .argument('<generatePayload>', 'Payload returned with the address generation')
-    .action((generatePayload) => {
-        forwarder.forward(generatePayload)
+    .action((generatePayload, options) => {
+        console.log('options:', options)
+        forwarder.forward({ generatePayload, ...options })
     })
 
 program.parse()

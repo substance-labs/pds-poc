@@ -46,9 +46,10 @@ module.exports.generate = async ({ initMaterial, chainId, amount, token, recipie
         chainCode,
     } = getFields(initMaterial)
 
+    let output = null
     switch (ethers.toNumber(protocol)) {
-        case 1:
-            generateEvmAddress({
+        case 1: // EVM
+            output = generateEvmAddress({
                 version,
                 protocol,
                 chainId,
@@ -60,4 +61,6 @@ module.exports.generate = async ({ initMaterial, chainId, amount, token, recipie
         default:
             throw new Error(`Unsupported protocol ${protocol}`)
     }
+
+    console.log('output:', output)
 }

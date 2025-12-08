@@ -11,7 +11,7 @@ const path = require("path")
 const os = require("os")
 
 
-module.exports.forward = async (generatePayload) => {
+module.exports.forward = async ({ generatePayload, gasPrice, gasLimit, nonce }) => {
     const homedir = os.homedir()
     const CREDENTIALS_DIR = ".near-credentials"
     const credentialsPath = path.join(homedir, CREDENTIALS_DIR)
@@ -37,14 +37,11 @@ module.exports.forward = async (generatePayload) => {
         payload
     } = decodeMessage(generatePayload)
     const forwardingParams = cbor.decode(ethers.getBytes(payload))
-    const nonce = "0"
-    const gasPrice = "20000000"
-    const gasLimit = "50000"
 
     forwardingParams.push(nonce, gasPrice, gasLimit)
+
     const encoded = encodeMessage({ version, protocol, command, payload: cbor.encode(forwardingParams) })
     const args = getCallArgs(encoded)
-
     const gas = "300000000000000" // 300 Tgas
     const deposit = utils.format.parseNearAmount("0.1")
 

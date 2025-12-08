@@ -74,8 +74,8 @@ module.exports.generateEvmAddress = async ({
     const payload = cbor.encode(commitmentParams);
     const message = encodeMessage({ version, protocol, command, payload })
 
-    console.log("Output:", JSON.stringify({
+    return {
         address,
         message
-    }))
+    }
 }
