@@ -1,13 +1,17 @@
+const cbor = require('cbor')
+const ethers = require('ethers')
 const { Account } = require("@near-js/accounts")
 const { keyStores, utils } = require("near-api-js")
 const { KeyPairSigner } = require("@near-js/signers")
 const { getCallArgs } = require('../get-call-args')
 const { JsonRpcProvider } = require("@near-js/providers")
+const { decodeMessage, encodeMessage } = require('../message')
 
 const path = require("path")
 const os = require("os")
 
-module.exports.forward = async (payload) => {
+
+module.exports.forward = async ({ generatePayload, gasPrice, gasLimit, nonce }) => {
     const homedir = os.homedir()
     const CREDENTIALS_DIR = ".near-credentials"
     const credentialsPath = path.join(homedir, CREDENTIALS_DIR)
@@ -26,7 +30,18 @@ module.exports.forward = async (payload) => {
 
     const methodName = "request_execution"
 
-    const args = getCallArgs(payload)
+    const {
+        version,
+        protocol,
+        command,
+        payload
+    } = decodeMessage(generatePayload)
+    const forwardingParams = cbor.decode(ethers.getBytes(payload))
+
+    forwardingParams.push(nonce, gasPrice, gasLimit)
+
+    const encoded = encodeMessage({ version, protocol, command, payload: cbor.encode(forwardingParams) })
+    const args = getCallArgs(encoded)
     const gas = "300000000000000" // 300 Tgas
     const deposit = utils.format.parseNearAmount("0.1")
 
